@@ -1,13 +1,14 @@
 'use client';
 
 import { NextPage } from 'next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
 } from '@/components/atoms/form';
@@ -26,8 +27,14 @@ const todoSchema = z.object({
 type Todo = z.infer<typeof todoSchema>;
 
 const RootPage: NextPage = () => {
+  // TODO: 1. Search todos
+  // TODO: 2. Strikethrough completed todos
+  // TODO: 3. Refactor: split components
+  // TODO: 4. Fetch public API
+  // TODO: 5. Unit testing
   const [todos, setTodos] = useState<Todo[]>([]);
   const [activeTodo, setActiveTodo] = useState<number>();
+  const [searchMode, setSearchMode] = useState(false);
   const form = useForm<Todo>({
     resolver: zodResolver(todoSchema),
     defaultValues: {
@@ -35,6 +42,44 @@ const RootPage: NextPage = () => {
       done: false,
     },
   });
+
+  // listen for keydown events
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (searchMode) {
+      // filter todos based on search query
+      const searchQuery = form.watch('description');
+      const filteredTodos = todos.filter((todo) =>
+        todo.description.includes(searchQuery),
+      );
+
+      setTodos(filteredTodos);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch('description')]);
+
+  function handleKeyDown(event: KeyboardEvent): void {
+    // listen esc to reset form and close edit mode
+    if (event.key === 'Escape') {
+      form.reset();
+      setActiveTodo(undefined);
+    }
+
+    // listen ctrl + f or command + f to toggle search mode
+    if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
+      event.preventDefault();
+      form.setValue('description', '');
+      setSearchMode((prev) => !prev);
+    }
+  }
 
   function onSubmit(data: Todo): void {
     form.reset();
@@ -93,8 +138,16 @@ const RootPage: NextPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="I want to do..." {...field} />
+                      <Input
+                        placeholder={
+                          searchMode ? 'Search todo...' : 'I want to do...'
+                        }
+                        {...field}
+                      />
                     </FormControl>
+                    <FormDescription className="text-center">
+                      ⌘ + f to search, esc to close, enter to submit
+                    </FormDescription>
                   </FormItem>
                 )}
               />
