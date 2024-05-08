@@ -15,9 +15,11 @@ import { Input } from '@/components/atoms/input';
 import { Checkbox } from '@/components/atoms/checkbox';
 import { Button } from '@/components/atoms';
 import { EditIcon, Trash } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const todoSchema = z.object({
-  description: z.string().min(2),
+  id: z.string().optional(),
+  description: z.string().min(1),
   done: z.boolean().optional(),
 });
 
@@ -38,13 +40,22 @@ const RootPage: NextPage = () => {
     form.reset();
 
     if (activeTodo === undefined) {
-      setTodos([data, ...todos]);
+      const generatedId = Math.random().toString(36).substring(2, 9);
+      const value = {
+        id: generatedId,
+        done: false,
+        ...data,
+      };
+
+      setTodos([value, ...todos]);
 
       return;
     }
 
     // Update existing todo
-    setTodos((prev) => prev.map((todo, i) => (i === activeTodo ? data : todo)));
+    setTodos((prev) =>
+      prev.map((todo, i) => (i === activeTodo ? { ...todo, ...data } : todo)),
+    );
     setActiveTodo(undefined);
   }
 
@@ -67,8 +78,8 @@ const RootPage: NextPage = () => {
 
   return (
     <section className="flex flex-col h-full w-full">
-      <div className="grid grid-cols-4">
-        <div className="col-span-2 col-start-2">
+      <div className="grid grid-cols-4 p-5">
+        <div className="col-span-4 md:col-span-2 md:col-start-2">
           <h2 className="text-4xl text-center py-4">ToDo List</h2>
           <Form {...form}>
             <form
@@ -89,49 +100,73 @@ const RootPage: NextPage = () => {
               />
             </form>
           </Form>
-          <ul className="flex flex-col gap-2 mt-5">
-            {todos.map((todo, index) => (
-              <li
-                key={index}
-                className={`flex border border-solid py-2 px-3 rounded-md items-center gap-2 ${![undefined, index].includes(activeTodo) && 'opacity-20'}`}
-              >
-                <Checkbox
-                  checked={todo.done}
-                  onCheckedChange={(value) =>
-                    onToggleStatus(index, value as Todo['done'])
-                  }
-                />
-                <div className="flex-auto">{todo.description}</div>
-                {index === activeTodo ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    type="submit"
-                    form="todo-form"
-                  >
-                    Save
-                  </Button>
-                ) : (
-                  <>
+          <motion.ul className="flex flex-col gap-2 mt-5">
+            <AnimatePresence>
+              {todos.map((todo, index) => (
+                <motion.li
+                  key={todo.id}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  custom={(index + 1) * 0.2}
+                  layoutId={todo.id}
+                  transition={{
+                    type: 'easeInOut',
+                    duration: 0.3,
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  variants={{
+                    hidden: { y: -20, opacity: 0 },
+                    visible: (custom) => ({
+                      y: 0,
+                      opacity: 1,
+                      transition: { delay: custom },
+                    }),
+                  }}
+                  className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 ${![undefined, index].includes(activeTodo) && 'opacity-20'}`}
+                >
+                  <Checkbox
+                    checked={todo.done}
+                    onCheckedChange={(value) =>
+                      onToggleStatus(index, value as Todo['done'])
+                    }
+                  />
+                  <div className="flex-auto">
+                    {index === activeTodo
+                      ? form.watch('description')
+                      : todo.description}
+                  </div>
+                  {index === activeTodo ? (
                     <Button
-                      size="icon"
-                      variant="link"
-                      onClick={() => onEditTodo(index)}
+                      size="sm"
+                      variant="ghost"
+                      type="submit"
+                      form="todo-form"
                     >
-                      <EditIcon size={16} />
+                      Save
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="link"
-                      onClick={() => onRemove(index)}
-                    >
-                      <Trash size={16} className="text-destructive" />
-                    </Button>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
+                  ) : (
+                    <>
+                      <Button
+                        size="icon"
+                        variant="link"
+                        onClick={() => onEditTodo(index)}
+                      >
+                        <EditIcon size={16} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="link"
+                        onClick={() => onRemove(index)}
+                      >
+                        <Trash size={16} className="text-destructive" />
+                      </Button>
+                    </>
+                  )}
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
         </div>
       </div>
     </section>
