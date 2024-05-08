@@ -1,0 +1,43 @@
+name: Vercel Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+    # Trigger only when ready for review, and when new commits are pushed
+    types: [ready_for_review, synchronize]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+
+      - uses: actions/setup-node@v4
+        name: Setup Node.js
+        with:
+          node-version: 20
+      
+      - uses: pnpm/action-setup@v3
+        name: Install PNPM
+        with:
+          version: 8
+          run_install: false
+
+      - name: Install Vercel CLI
+        run: pnpm i -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

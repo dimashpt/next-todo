@@ -1,0 +1,11 @@
+{
+  "common": {
+    "name": "Dimas Hayat Pratama",
+    "username": "dimashpt",
+    "role": "Front End Developer",
+    "coming_soon": "🚧 Halaman ini sedang dalam pengembangan"
+  },
+  "nav": {
+    "home": "_toDo"
+  }
+}

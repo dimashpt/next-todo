@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bgbase: 240 9% 98%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 280 5% 11%;
+    --primary-foreground: 240 9% 98%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 280 5% 11%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 220 6% 49%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 280 5% 11%;
+    --destructive: 353 67% 48%;
+    --destructive-foreground: 240 9% 98%;
+    --border: 225 21% 93%; 
+    --input: 225 21% 93%; 
+    --ring: 0 0% 5%; 
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --bgbase: 0 0% 5%;
+    --background: 0 0% 0%;
+    --foreground: 240 9% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 240 9% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 240 9% 98%;
+    --primary: 240 9% 98%;
+    --primary-foreground: 280 5% 11%;
+    --secondary: 223 7% 19%; 
+    --secondary-foreground: 240 9% 98%;
+    --muted: 223 7% 19%;
+    --muted-foreground: 226 11% 69%;
+    --accent: 223 7% 19%;
+    --accent-foreground: 240 9% 98%;
+    --destructive: 349 63% 37%; 
+    --destructive-foreground: 240 9% 98%;
+    --border: 223 7% 19%;
+    --input: 223 7% 19%;
+    --ring: 226 25% 90%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply flex font-sans antialiased text-foreground justify-center items-center h-dvh w-full overflow-hidden bg-bgbase;
+  }
+
+  main {
+    @apply md:h-[calc(100dvh-10%)] md:w-[calc(100dvw-5%)] h-[calc(100dvh-3%)] w-[calc(100dvw-5%)] bg-background rounded-[--radius] border flex flex-col overflow-hidden relative transition-all;
+  }
+
+  section {
+    @apply flex-1;
+  }
+}
