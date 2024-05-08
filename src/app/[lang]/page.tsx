@@ -15,7 +15,7 @@ import { Input } from '@/components/atoms/input';
 import { Checkbox } from '@/components/atoms/checkbox';
 import { Button } from '@/components/atoms';
 import { EditIcon, Trash } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, Reorder } from 'framer-motion';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -100,11 +100,17 @@ const RootPage: NextPage = () => {
               />
             </form>
           </Form>
-          <motion.ul className="flex flex-col gap-2 mt-5">
+          <Reorder.Group
+            axis="y"
+            values={todos}
+            onReorder={setTodos}
+            className="flex flex-col gap-2 mt-5"
+          >
             <AnimatePresence>
               {todos.map((todo, index) => (
-                <motion.li
+                <Reorder.Item
                   key={todo.id}
+                  value={todo}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
@@ -114,7 +120,7 @@ const RootPage: NextPage = () => {
                     type: 'easeInOut',
                     duration: 0.3,
                   }}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, cursor: 'grab' }}
                   variants={{
                     hidden: { y: -20, opacity: 0 },
                     visible: (custom) => ({
@@ -163,10 +169,10 @@ const RootPage: NextPage = () => {
                       </Button>
                     </>
                   )}
-                </motion.li>
+                </Reorder.Item>
               ))}
             </AnimatePresence>
-          </motion.ul>
+          </Reorder.Group>
         </div>
       </div>
     </section>
