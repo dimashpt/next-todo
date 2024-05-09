@@ -22,6 +22,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/atoms/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar';
 import { Icons } from '@/assets';
+import { Switch } from '@/components/atoms/switch';
+import { Label } from '@/components/atoms/label';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -38,6 +40,8 @@ const RootPage: NextPage = () => {
   // TODO: Refactor: split components
   // TODO: Fetch public API ✅
   // TODO: Unit testing
+  // TODO: Make search mode more accessible in mobile ✅
+  // TODO: Render github profile data using server side rendering to prevent key leak
   const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [activeTodo, setActiveTodo] = useState<string>();
   const [searchMode, setSearchMode] = useState(false);
@@ -48,7 +52,7 @@ const RootPage: NextPage = () => {
       done: false,
     },
   });
-  const { isLoading, data } = useQuery({
+  const { data } = useQuery({
     queryKey: ['profile'],
     queryFn: async (): Promise<GithubProfile> => {
       const data = await fetch('https://api.github.com/user', {
@@ -93,9 +97,7 @@ const RootPage: NextPage = () => {
     // listen ctrl + f or command + f to toggle search mode
     if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
       event.preventDefault();
-      form.setValue('description', '');
-      form.setFocus('description');
-      setSearchMode((prev) => !prev);
+      toggleSearchMode();
     }
   }
 
@@ -148,10 +150,17 @@ const RootPage: NextPage = () => {
     form.setFocus('description');
   }
 
+  function toggleSearchMode(): void {
+    if (!searchMode) form.setFocus('description');
+
+    form.setValue('description', '');
+    setSearchMode((prev) => !prev);
+  }
+
   return (
     <section className="flex flex-col h-full w-full">
-      <div className="grid grid-cols-4 p-5 h-full relative">
-        <div className="col-span-4 md:col-span-2 md:col-start-2 absolute flex flex-col top-0 bottom-0 w-full px-4">
+      <div className="grid grid-cols-12 p-5 h-full relative">
+        <div className="col-span-12 md:col-span-8 md:col-start-3 lg:col-span-6 lg:col-start-4 absolute flex flex-col top-0 bottom-0 w-full px-4">
           <h2 className="text-4xl text-center py-4">ToDo List</h2>
           <Form {...form}>
             <form
@@ -173,7 +182,16 @@ const RootPage: NextPage = () => {
                       />
                     </FormControl>
                     <FormDescription className="text-center">
-                      ⌘ + f to search, esc to close, enter to submit
+                      <span className="hidden md:inline">
+                        ⌘ + f to search, esc to close, enter to submit
+                      </span>
+                      <span className="md:hidden flex items-center justify-end gap-2">
+                        <Label>Search Mode</Label>
+                        <Switch
+                          checked={searchMode}
+                          onCheckedChange={toggleSearchMode}
+                        />
+                      </span>
                     </FormDescription>
                   </FormItem>
                 )}
@@ -257,21 +275,24 @@ const RootPage: NextPage = () => {
             </AnimatePresence>
           </Reorder.Group>
           <div className="w-full flex justify-center py-4">
-            <Card className="w-full max-w-sm border border-gray-200 dark:border-gray-800 p-4 rounded-lg">
+            <Card className="w-full max-w-sm border border-gray-200 dark:border-gray-800 p-2 md:p-4 rounded-lg">
               <div className="flex items-center space-x-4">
                 <Avatar>
                   <AvatarImage alt={data?.name} src={data?.avatar_url} />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>{data?.name}</AvatarFallback>
                 </Avatar>
                 <div className="space-y-1 flex-auto">
                   <h4 className="text-lg font-semibold">@{data?.login}</h4>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
                     {data?.location}
                   </p>
+                  <p className="block md:hidden text-gray-500 dark:text-gray-400 text-[10px]">
+                    {data?.followers} followers · {data?.following} following
+                  </p>
                 </div>
                 <Icons.GitHub width={50} height={50} className="opacity-10" />
               </div>
-              <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+              <div className="hidden mt-6 md:grid grid-cols-3 gap-4 text-center">
                 <div className="space-y-1">
                   <p className="text-2xl font-medium">{data?.followers}</p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
