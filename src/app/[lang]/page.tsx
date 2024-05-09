@@ -18,6 +18,10 @@ import { Button } from '@/components/atoms';
 import { EditIcon, Trash } from 'lucide-react';
 import { AnimatePresence, Reorder } from 'framer-motion';
 import useLocalStorage from '@/hooks/use-local-storage';
+import { useQuery } from '@tanstack/react-query';
+import { Card } from '@/components/atoms/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar';
+import { Icons } from '@/assets';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -32,7 +36,7 @@ const RootPage: NextPage = () => {
   // TODO: Strikethrough completed todos ✅
   // TODO: Persist todos in local storage ✅
   // TODO: Refactor: split components
-  // TODO: Fetch public API
+  // TODO: Fetch public API ✅
   // TODO: Unit testing
   const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [activeTodo, setActiveTodo] = useState<string>();
@@ -42,6 +46,19 @@ const RootPage: NextPage = () => {
     defaultValues: {
       description: '',
       done: false,
+    },
+  });
+  const { isLoading, data } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async (): Promise<GithubProfile> => {
+      const data = await fetch('https://api.github.com/user', {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+        },
+      });
+
+      return data.json();
     },
   });
   const filteredTodos: Todo[] = useMemo(() => {
@@ -133,8 +150,8 @@ const RootPage: NextPage = () => {
 
   return (
     <section className="flex flex-col h-full w-full">
-      <div className="grid grid-cols-4 p-5">
-        <div className="col-span-4 md:col-span-2 md:col-start-2">
+      <div className="grid grid-cols-4 p-5 h-full relative">
+        <div className="col-span-4 md:col-span-2 md:col-start-2 absolute flex flex-col top-0 bottom-0 w-full px-4">
           <h2 className="text-4xl text-center py-4">ToDo List</h2>
           <Form {...form}>
             <form
@@ -167,7 +184,7 @@ const RootPage: NextPage = () => {
             axis="y"
             values={todos}
             onReorder={setTodos}
-            className="flex flex-col gap-2 mt-5"
+            className="flex flex-col gap-2 mt-5 flex-auto overflow-x-hidden overflow-y-auto"
           >
             <AnimatePresence>
               {filteredTodos.map((todo, index) => (
@@ -183,7 +200,10 @@ const RootPage: NextPage = () => {
                     type: 'easeInOut',
                     duration: 0.3,
                   }}
-                  whileHover={{ scale: 1.02, cursor: 'grab' }}
+                  whileHover={{
+                    // scale: 1.02,
+                    cursor: 'grab',
+                  }}
                   variants={{
                     hidden: { y: -20, opacity: 0 },
                     visible: (custom) => ({
@@ -236,6 +256,43 @@ const RootPage: NextPage = () => {
               ))}
             </AnimatePresence>
           </Reorder.Group>
+          <div className="w-full flex justify-center py-4">
+            <Card className="w-full max-w-sm border border-gray-200 dark:border-gray-800 p-4 rounded-lg">
+              <div className="flex items-center space-x-4">
+                <Avatar>
+                  <AvatarImage alt={data?.name} src={data?.avatar_url} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div className="space-y-1 flex-auto">
+                  <h4 className="text-lg font-semibold">@{data?.login}</h4>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    {data?.location}
+                  </p>
+                </div>
+                <Icons.GitHub width={50} height={50} className="opacity-10" />
+              </div>
+              <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+                <div className="space-y-1">
+                  <p className="text-2xl font-medium">{data?.followers}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    Followers
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-2xl font-medium">{data?.following}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    Following
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-2xl font-medium">{data?.public_repos}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    Public Repos
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </section>
