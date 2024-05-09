@@ -1,7 +1,7 @@
 'use client';
 
 import { NextPage } from 'next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +28,7 @@ const todoSchema = z.object({
 type Todo = z.infer<typeof todoSchema>;
 
 const RootPage: NextPage = () => {
-  // TODO: Search todos
+  // TODO: Search todos ✅
   // TODO: Strikethrough completed todos ✅
   // TODO: Persist todos in local storage ✅
   // TODO: Refactor: split components
@@ -44,6 +44,17 @@ const RootPage: NextPage = () => {
       done: false,
     },
   });
+  const filteredTodos: Todo[] = useMemo(() => {
+    return searchMode
+      ? todos.filter((todo) => {
+          const description = todo.description.toLowerCase();
+          const search = form.watch('description').toLowerCase();
+
+          return description.includes(search);
+        })
+      : todos;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch('description'), searchMode, todos]);
 
   // listen for keydown events
   useEffect(() => {
@@ -54,19 +65,6 @@ const RootPage: NextPage = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (searchMode) {
-      // filter todos based on search query
-      const searchQuery = form.watch('description');
-      const filteredTodos = todos.filter((todo) =>
-        todo.description.includes(searchQuery),
-      );
-
-      setTodos(filteredTodos);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.watch('description')]);
 
   function handleKeyDown(event: KeyboardEvent): void {
     // listen esc to reset form and close edit mode
@@ -172,7 +170,7 @@ const RootPage: NextPage = () => {
             className="flex flex-col gap-2 mt-5"
           >
             <AnimatePresence>
-              {todos.map((todo, index) => (
+              {filteredTodos.map((todo, index) => (
                 <Reorder.Item
                   key={todo.id}
                   value={todo}
