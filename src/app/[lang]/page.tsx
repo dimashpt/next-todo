@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/atoms/checkbox';
 import { Button } from '@/components/atoms';
 import { EditIcon, Trash } from 'lucide-react';
 import { AnimatePresence, Reorder } from 'framer-motion';
+import useLocalStorage from '@/hooks/use-local-storage';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -29,11 +30,11 @@ type Todo = z.infer<typeof todoSchema>;
 const RootPage: NextPage = () => {
   // TODO: Search todos
   // TODO: Strikethrough completed todos ✅
-  // TODO: Persist todos in local storage
+  // TODO: Persist todos in local storage ✅
   // TODO: Refactor: split components
   // TODO: Fetch public API
   // TODO: Unit testing
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [activeTodo, setActiveTodo] = useState<number>();
   const [searchMode, setSearchMode] = useState(false);
   const form = useForm<Todo>({
