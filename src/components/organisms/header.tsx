@@ -1,12 +1,7 @@
 import Link from 'next/link';
-import { NavMenu } from '../molecules';
-import { NavItem } from '../atoms';
 import { useTranslation } from '@/lib/i18n';
-import { headers } from 'next/headers';
-import { getLangFromPathname } from '@/lib/utils';
 
 export const Header: React.FC = async () => {
-  const lang = getLangFromPathname(headers().get('x-pathname')!);
   const { t } = await useTranslation('nav');
 
   return (
@@ -17,11 +12,6 @@ export const Header: React.FC = async () => {
       >
         @{t('common:username')}
       </Link>
-      <div className="md:col-span-9 lg:col-span-10 flex items-center justify-between">
-        <NavMenu>
-          <NavItem href={`/${lang}`}>{t('home')}</NavItem>
-        </NavMenu>
-      </div>
     </nav>
   );
 };

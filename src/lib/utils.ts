@@ -6,5 +6,5 @@ export function cn(...inputs: ClassValue[]): string {
 }
 
 export function getLangFromPathname(pathname: string): string {
-  return pathname.split('/')[1];
+  return pathname.split('/')[1] ?? '';
 }

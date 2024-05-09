@@ -3,7 +3,6 @@ import { Todo } from '@/components/organisms';
 import { GithubCard } from '@/components/organisms';
 
 const RootPage: NextPage = () => {
-  // TODO: Unit testing
   // TODO: Generate code documentation
   return (
     <section className="flex flex-col h-full w-full">
