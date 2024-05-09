@@ -3,7 +3,6 @@ import { Todo } from '@/components/organisms';
 import { GithubCard } from '@/components/organisms';
 
 const RootPage: NextPage = () => {
-  // TODO: Generate code documentation
   return (
     <section className="flex flex-col h-full w-full">
       <div className="grid grid-cols-12 p-5 h-full relative">

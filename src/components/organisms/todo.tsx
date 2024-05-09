@@ -17,6 +17,9 @@ import { AnimatePresence, Reorder } from 'framer-motion';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Switch } from '@/components/atoms/switch';
 import { Label } from '@/components/atoms/label';
+import Lottie from 'lottie-react';
+import todoAnimation from '@/assets/animations/todo-animation.json';
+import notFoundAnimation from '@/assets/animations/not-found.json';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -75,6 +78,8 @@ export const Todo: React.FC = () => {
   }
 
   function onSubmit(data: Todo): void {
+    if (searchMode) return;
+
     form.reset();
 
     if (activeTodo === undefined) {
@@ -173,17 +178,35 @@ export const Todo: React.FC = () => {
         className="flex flex-col gap-2 mt-5 flex-auto overflow-x-hidden overflow-y-auto"
       >
         <AnimatePresence>
-          {filteredTodos.map((todo, index) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              index={index}
-              active={activeTodo === todo.id}
-              onEdit={onEditTodo}
-              onRemove={onRemove}
-              onChangeStatus={onToggleStatus}
-            />
-          ))}
+          {filteredTodos.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-full">
+              <Lottie
+                className="h-2/3"
+                animationData={searchMode ? notFoundAnimation : todoAnimation}
+                loop={true}
+              />
+              <h1 className="text-3xl font-bold">
+                {searchMode ? 'No todo found' : 'Nothing to do'}
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                {searchMode
+                  ? 'Try another keyword or add a new todo'
+                  : 'Add a new todo to get started'}
+              </p>
+            </div>
+          ) : (
+            filteredTodos.map((todo, index) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                index={index}
+                active={activeTodo === todo.id}
+                onEdit={onEditTodo}
+                onRemove={onRemove}
+                onChangeStatus={onToggleStatus}
+              />
+            ))
+          )}
         </AnimatePresence>
       </Reorder.Group>
     </>
