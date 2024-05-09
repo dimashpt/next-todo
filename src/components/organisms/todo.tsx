@@ -12,9 +12,7 @@ import {
   FormItem,
 } from '@/components/atoms/form';
 import { Input } from '@/components/atoms/input';
-import { Checkbox } from '@/components/atoms/checkbox';
-import { Button } from '@/components/atoms';
-import { EditIcon, Trash } from 'lucide-react';
+import { TodoItem } from '@/components/atoms';
 import { AnimatePresence, Reorder } from 'framer-motion';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { Switch } from '@/components/atoms/switch';
@@ -30,7 +28,7 @@ type Todo = z.infer<typeof todoSchema>;
 
 export const Todo: React.FC = () => {
   const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
-  const [activeTodo, setActiveTodo] = useState<string>();
+  const [activeTodo, setActiveTodo] = useState<number>();
   const [searchMode, setSearchMode] = useState(false);
   const form = useForm<Todo>({
     resolver: zodResolver(todoSchema),
@@ -94,8 +92,8 @@ export const Todo: React.FC = () => {
 
     // Update existing todo
     setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === activeTodo
+      prev.map((todo, index) =>
+        index === activeTodo
           ? {
               ...todo,
               description: data.description,
@@ -117,10 +115,8 @@ export const Todo: React.FC = () => {
     );
   }
 
-  function onEditTodo(id: string): void {
-    const index = todos.findIndex((todo) => todo.id === id);
-
-    setActiveTodo(id);
+  function onEditTodo(index: number): void {
+    setActiveTodo(index);
     form.setValue('description', todos[index].description);
     form.setFocus('description');
   }
@@ -178,71 +174,15 @@ export const Todo: React.FC = () => {
       >
         <AnimatePresence>
           {filteredTodos.map((todo, index) => (
-            <Reorder.Item
+            <TodoItem
               key={todo.id}
-              value={todo}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              custom={(index + 1) * 0.2}
-              layoutId={todo.id}
-              transition={{
-                type: 'easeInOut',
-                duration: 0.3,
-              }}
-              whileHover={{
-                // scale: 1.02,
-                cursor: 'grab',
-              }}
-              variants={{
-                hidden: { y: -20, opacity: 0 },
-                visible: (custom) => ({
-                  y: 0,
-                  opacity: 1,
-                  transition: { delay: custom },
-                }),
-              }}
-              className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 hover:bg-accent hover:text-accent-foreground ${![undefined, todo.id].includes(activeTodo) && 'opacity-20'}`}
-            >
-              <Checkbox
-                checked={todo.done}
-                onCheckedChange={(value) =>
-                  onToggleStatus(index, value as Todo['done'])
-                }
-              />
-              <div className={`flex-auto ${todo.done && 'line-through'}`}>
-                {todo.id === activeTodo
-                  ? form.watch('description')
-                  : todo.description}
-              </div>
-              {todo.id === activeTodo ? (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  type="submit"
-                  form="todo-form"
-                >
-                  Save
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    size="icon"
-                    variant="link"
-                    onClick={() => onEditTodo(todo.id!)}
-                  >
-                    <EditIcon size={16} />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="link"
-                    onClick={() => onRemove(index)}
-                  >
-                    <Trash size={16} className="text-destructive" />
-                  </Button>
-                </>
-              )}
-            </Reorder.Item>
+              todo={todo}
+              index={index}
+              active={activeTodo === todo.id}
+              onEdit={onEditTodo}
+              onRemove={onRemove}
+              onChangeStatus={onToggleStatus}
+            />
           ))}
         </AnimatePresence>
       </Reorder.Group>

@@ -3,14 +3,7 @@ import { Todo } from '@/components/organisms';
 import { GithubCard } from '@/components/organisms';
 
 const RootPage: NextPage = () => {
-  // TODO: Search todos ✅
-  // TODO: Strikethrough completed todos ✅
-  // TODO: Persist todos in local storage ✅
-  // TODO: Refactor: split components
-  // TODO: Fetch public API ✅
   // TODO: Unit testing
-  // TODO: Make search mode more accessible in mobile ✅
-  // TODO: Render github profile data using server side rendering to prevent key leak ✅
   return (
     <section className="flex flex-col h-full w-full">
       <div className="grid grid-cols-12 p-5 h-full relative">

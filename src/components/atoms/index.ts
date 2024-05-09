@@ -7,3 +7,4 @@ export * from './footer-item';
 export * from './accordion';
 export * from './loading';
 export * from './animate-route';
+export * from './todo-item';
