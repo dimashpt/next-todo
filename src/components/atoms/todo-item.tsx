@@ -4,8 +4,8 @@ import { z } from 'zod';
 
 import { Checkbox } from '@/components/atoms/checkbox';
 import { Button } from '@/components/atoms';
-import { EditIcon, Trash } from 'lucide-react';
-import { Reorder } from 'framer-motion';
+import { EditIcon, GripVertical, Trash } from 'lucide-react';
+import { Reorder, useDragControls } from 'framer-motion';
 
 const todoSchema = z.object({
   id: z.string().optional(),
@@ -22,6 +22,7 @@ type TodoItemProps = {
   onEdit: (index: number) => void;
   onRemove: (index: number) => void;
   onChangeStatus: (index: number, done: Todo['done']) => void;
+  typedText?: string;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -31,11 +32,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onEdit,
   onRemove,
   onChangeStatus,
+  typedText,
 }) => {
+  const dragControls = useDragControls();
+
   return (
     <Reorder.Item
       key={todo.id}
       value={todo}
+      dragListener={false}
+      dragControls={dragControls}
       initial="hidden"
       animate="visible"
       exit="hidden"
@@ -45,10 +51,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         type: 'easeInOut',
         duration: 0.3,
       }}
-      whileHover={{
-        // scale: 1.02,
-        cursor: 'grab',
-      }}
+      whileHover={{ scale: 1.02 }}
       variants={{
         hidden: { y: -20, opacity: 0 },
         visible: (custom) => ({
@@ -59,6 +62,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       }}
       className="flex border border-solid py-2 px-3 rounded-md items-center gap-3 hover:bg-accent hover:text-accent-foreground"
     >
+      <GripVertical
+        size={16}
+        className="cursor-grab"
+        onPointerDown={(e) => dragControls.start(e)}
+        style={{ touchAction: 'none' }}
+      />
       <Checkbox
         checked={todo.done}
         onCheckedChange={(value) =>
@@ -66,8 +75,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         }
       />
       <div className={`flex-auto ${todo.done && 'line-through'}`}>
-        {/* {active ? form.watch('description') : todo.description} */}
-        {todo.description}
+        {active ? typedText : todo.description}
       </div>
       {active ? (
         <Button size="sm" variant="ghost" type="submit" form="todo-form">

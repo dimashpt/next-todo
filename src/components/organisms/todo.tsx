@@ -40,6 +40,7 @@ export const Todo: React.FC = () => {
       done: false,
     },
   });
+  const isSearching = searchMode && form.watch('description').length > 0;
 
   const filteredTodos: Todo[] = useMemo(() => {
     return searchMode
@@ -182,14 +183,14 @@ export const Todo: React.FC = () => {
             <div className="flex flex-col justify-center items-center h-full">
               <Lottie
                 className="h-2/3"
-                animationData={searchMode ? notFoundAnimation : todoAnimation}
+                animationData={isSearching ? notFoundAnimation : todoAnimation}
                 loop={true}
               />
               <h1 className="text-3xl font-bold">
-                {searchMode ? 'No todo found' : 'Nothing to do'}
+                {isSearching ? 'No todo found' : 'Nothing to do'}
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
-                {searchMode
+                {isSearching
                   ? 'Try another keyword or add a new todo'
                   : 'Add a new todo to get started'}
               </p>
@@ -200,10 +201,11 @@ export const Todo: React.FC = () => {
                 key={todo.id}
                 todo={todo}
                 index={index}
-                active={activeTodo === todo.id}
+                active={activeTodo === index}
                 onEdit={onEditTodo}
                 onRemove={onRemove}
                 onChangeStatus={onToggleStatus}
+                typedText={form.watch('description')}
               />
             ))
           )}
