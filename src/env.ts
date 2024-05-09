@@ -6,7 +6,7 @@ export const env = createEnv({
   isServer: typeof window === 'undefined',
   skipValidation: true,
   server: {
-    SECRET_TOKEN: z.string().min(1),
+    GITHUB_TOKEN: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_ACCESS_TOKEN: z.string().min(1),
