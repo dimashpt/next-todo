@@ -6,7 +6,6 @@ import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/atoms';
 import { Footer, Header } from '@/components/organisms';
 import { dir } from 'i18next';
-import QueryProvider from '@/lib/query';
 
 type BaseLayoutProps = {
   children: React.ReactNode;
@@ -32,15 +31,13 @@ const RootLayout: NextPage<BaseLayoutProps> = ({
         className={`${GeistSans.variable} ${GeistMono.variable} font-mono`}
         suppressHydrationWarning
       >
-        <QueryProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <main>
-              <Header />
-              {children}
-              <Footer />
-            </main>
-          </ThemeProvider>
-        </QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <main>
+            <Header />
+            {children}
+            <Footer />
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

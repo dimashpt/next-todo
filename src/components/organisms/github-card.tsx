@@ -3,6 +3,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar';
 import { Card } from '@/components/atoms/card';
 import { env } from '@/env';
 
+/**
+ * This server component acts as a safeguard against token exposure
+ * in frontend network logs. It ensures that GitHub tokens,
+ * which provide read/write access to profiles, are not leaked.
+ */
 export const GithubCard: React.FC = async () => {
   const data: GithubProfile = await fetch('https://api.github.com/user', {
     headers: {
