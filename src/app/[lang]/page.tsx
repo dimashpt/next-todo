@@ -27,11 +27,12 @@ const todoSchema = z.object({
 type Todo = z.infer<typeof todoSchema>;
 
 const RootPage: NextPage = () => {
-  // TODO: 1. Search todos
-  // TODO: 2. Strikethrough completed todos
-  // TODO: 3. Refactor: split components
-  // TODO: 4. Fetch public API
-  // TODO: 5. Unit testing
+  // TODO: Search todos
+  // TODO: Strikethrough completed todos ✅
+  // TODO: Persist todos in local storage
+  // TODO: Refactor: split components
+  // TODO: Fetch public API
+  // TODO: Unit testing
   const [todos, setTodos] = useState<Todo[]>([]);
   const [activeTodo, setActiveTodo] = useState<number>();
   const [searchMode, setSearchMode] = useState(false);
@@ -77,6 +78,7 @@ const RootPage: NextPage = () => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
       event.preventDefault();
       form.setValue('description', '');
+      form.setFocus('description');
       setSearchMode((prev) => !prev);
     }
   }
@@ -99,7 +101,14 @@ const RootPage: NextPage = () => {
 
     // Update existing todo
     setTodos((prev) =>
-      prev.map((todo, i) => (i === activeTodo ? { ...todo, ...data } : todo)),
+      prev.map((todo, i) =>
+        i === activeTodo
+          ? {
+              ...todo,
+              description: data.description,
+            }
+          : todo,
+      ),
     );
     setActiveTodo(undefined);
   }
@@ -182,7 +191,7 @@ const RootPage: NextPage = () => {
                       transition: { delay: custom },
                     }),
                   }}
-                  className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 ${![undefined, index].includes(activeTodo) && 'opacity-20'}`}
+                  className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 hover:bg-accent hover:text-accent-foreground ${![undefined, index].includes(activeTodo) && 'opacity-20'}`}
                 >
                   <Checkbox
                     checked={todo.done}
@@ -190,7 +199,7 @@ const RootPage: NextPage = () => {
                       onToggleStatus(index, value as Todo['done'])
                     }
                   />
-                  <div className="flex-auto">
+                  <div className={`flex-auto ${todo.done && 'line-through'}`}>
                     {index === activeTodo
                       ? form.watch('description')
                       : todo.description}
