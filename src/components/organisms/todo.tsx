@@ -116,9 +116,23 @@ export const Todo: React.FC = () => {
   }
 
   function onToggleStatus(index: number, value: Todo['done']): void {
-    setTodos((prev) =>
-      prev.map((todo, i) => (i === index ? { ...todo, done: value } : todo)),
-    );
+    const todo = todos[index];
+    const updatedTodo = { ...todo, done: value };
+
+    // filter out the updated todo
+    const filteredTodos = todos.filter((todo) => todo.id !== updatedTodo.id);
+    const doneTodos = filteredTodos.filter((todo) => todo.done);
+    const undoneTodos = filteredTodos.filter((todo) => !todo.done);
+
+    setTodos((_) => {
+      if (value) {
+        // Move done todos to the top of the done's list
+        return [...undoneTodos, updatedTodo, ...doneTodos];
+      }
+
+      // Move undone todos to the top of the undone's list
+      return [updatedTodo, ...undoneTodos, ...doneTodos];
+    });
   }
 
   function onEditTodo(index: number): void {

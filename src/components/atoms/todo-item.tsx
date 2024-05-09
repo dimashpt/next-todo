@@ -51,7 +51,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         type: 'easeInOut',
         duration: 0.3,
       }}
-      whileHover={{ scale: 1.02 }}
       variants={{
         hidden: { y: -20, opacity: 0 },
         visible: (custom) => ({
