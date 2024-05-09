@@ -35,7 +35,7 @@ const RootPage: NextPage = () => {
   // TODO: Fetch public API
   // TODO: Unit testing
   const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
-  const [activeTodo, setActiveTodo] = useState<number>();
+  const [activeTodo, setActiveTodo] = useState<string>();
   const [searchMode, setSearchMode] = useState(false);
   const form = useForm<Todo>({
     resolver: zodResolver(todoSchema),
@@ -102,8 +102,8 @@ const RootPage: NextPage = () => {
 
     // Update existing todo
     setTodos((prev) =>
-      prev.map((todo, i) =>
-        i === activeTodo
+      prev.map((todo) =>
+        todo.id === activeTodo
           ? {
               ...todo,
               description: data.description,
@@ -125,8 +125,10 @@ const RootPage: NextPage = () => {
     setActiveTodo(undefined);
   }
 
-  function onEditTodo(index: number): void {
-    setActiveTodo(index);
+  function onEditTodo(id: string): void {
+    const index = todos.findIndex((todo) => todo.id === id);
+
+    setActiveTodo(id);
     form.setValue('description', todos[index].description);
     form.setFocus('description');
   }
@@ -192,7 +194,7 @@ const RootPage: NextPage = () => {
                       transition: { delay: custom },
                     }),
                   }}
-                  className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 hover:bg-accent hover:text-accent-foreground ${![undefined, index].includes(activeTodo) && 'opacity-20'}`}
+                  className={`flex border border-solid py-2 px-3 rounded-md items-center gap-3 hover:bg-accent hover:text-accent-foreground ${![undefined, todo.id].includes(activeTodo) && 'opacity-20'}`}
                 >
                   <Checkbox
                     checked={todo.done}
@@ -201,11 +203,11 @@ const RootPage: NextPage = () => {
                     }
                   />
                   <div className={`flex-auto ${todo.done && 'line-through'}`}>
-                    {index === activeTodo
+                    {todo.id === activeTodo
                       ? form.watch('description')
                       : todo.description}
                   </div>
-                  {index === activeTodo ? (
+                  {todo.id === activeTodo ? (
                     <Button
                       size="sm"
                       variant="ghost"
@@ -219,7 +221,7 @@ const RootPage: NextPage = () => {
                       <Button
                         size="icon"
                         variant="link"
-                        onClick={() => onEditTodo(index)}
+                        onClick={() => onEditTodo(todo.id!)}
                       >
                         <EditIcon size={16} />
                       </Button>
